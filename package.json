@@ -1,0 +1,14 @@
+{
+  "name": "seed",
+  "version": "1.0.0",
+  "description": "Generate seed data for testing user profiles (City, username, avatar, email, etc.)",
+  "main": "seed.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Seth Borden",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^3.10.1"
+  }
+}
