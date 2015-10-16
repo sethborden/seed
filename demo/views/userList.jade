@@ -1,0 +1,12 @@
+extends layout
+
+block content
+    div.container
+        h1 User List
+        ul.list-group
+            each user, index in users
+                a(href="/users/" + index)
+                    li.list-group-item 
+                        img.inline(style="width:80px;height:80px" src=user.profile.userAvatar)
+                        h3.inline= user.profile.displayName
+        h1 &nbsp;

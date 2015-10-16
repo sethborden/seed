@@ -1,0 +1,9 @@
+extends layout
+
+block content
+    div.container
+        h1 Group List
+        ul
+            each group, index in groups
+                a(href="/groups/" + index): li= group.name
+

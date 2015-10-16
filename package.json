@@ -9,6 +9,7 @@
   "author": "Seth Borden",
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "^0.8.5",
     "lodash": "^3.10.1"
   }
 }

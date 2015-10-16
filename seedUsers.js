@@ -1,47 +1,88 @@
 'use strict';
 
+/* Import statements */
 let seed = require('./seedInfo');
-//let bcrypt = require('bcrypt');
+let bcrypt = require('bcrypt');
 
+/**
+ * Generates a random integer between min and max.
+ * @param {number} min
+ * @param {number} max
+ * @returns {number}
+ */
 let randomInt = function(min, max) {
     return Math.floor(Math.random() * (max-min)) + min;
 };
 
+/**
+ * Returns a name from the list provided by seed.boyNames
+ * @returns {string}
+ */
 let randomBoyName = function() {
     return seed.boyNames[randomInt(0, seed.boyNames.length)];
 };
 
+/**
+ * Returns a name from the list provided by seed.girlNames
+ * @returns {string}
+ */
 let randomGirlName = function() {
     return seed.girlNames[randomInt(0, seed.girlNames.length)];
 };
 
+/**
+ * Returns a family name (surname/last name) provided by seed.famNames
+ * @returns {string}
+ */
 let randomFamName = function() {
     return seed.famNames[randomInt(0, seed.famNames.length)];
 };
 
-//Ratio is the percentage of the population that has a female name
+/**
+ * Generates a name that has a {ratio} percent chance of being a girl's name
+ * @param {number} ratio
+ * @returns {string}
+ */
 let makeName = function(ratio) {
+    //We need the following statement since V8 (and Node) haven't impletmented
+    //default function parameters.
     if(ratio === 'undefined') {
         ratio = 0.5;
     }
-    let boyOrGirl = Math.random();
-    if(boyOrGirl > ratio) {
+    if(Math.random() > ratio) {
         return randomGirlName() + ' ' + randomFamName();
     } else {
         return randomBoyName() +  ' ' + randomFamName();
     }
 };
 
-//let saltPassword = function(password) {
-//    bcrypt.genSalt(10, (err, salt) => {
-//        if(err) { return console.error(err); }
-//        bcrypt.hash(password, salt, (err, hash) => {
-//            if(err) { return console.error(err); }
-//            return hash;
-//        });
-//    });
-//};
+/**
+ * Despite the fact that all passwords for generated users are set to
+ * 'password', it's always good pratice to salt and hash the password. We
+ * provide it to the user as an option. Since this is a computationally
+ * intensive operation, we return a promise so as to remain non-blocking.
+ * @param {string} password
+ * @returns {Promise}
+ */
+let saltPassword = function(password) {
+    return new Promise((resolve, reject) => {
+        bcrypt.genSalt(10, (err, salt) => {
+            if(err) { reject(err); }
+            bcrypt.hash(password, salt, (err, hash) => {
+                if(err) { reject(err); }
+                resolve(hash);
+            });
+        });
+    });
+};
 
+/**
+ * Generates an email address based on the users user name or true name, and a
+ * list of email providers given by seed.providers.
+ * @param {string} name
+ * @param {string} username
+ * @returns {string}
+ */
 let makeEmail = function(name, username) {
     let strategy = Math.random();
     let provider = seed.providers[randomInt(0, seed.providers.length)];
@@ -57,22 +98,41 @@ let makeEmail = function(name, username) {
     }
 };
 
-let makeProfiles = function(num, unique) {
+/**
+ * Generate a new profile based on our seed data
+ * @returns {Object}
+ */
+let makeProfile = function () {
+    let user = {};
+    let username = seed.usernames[randomInt(0, seed.usernames.length)];
+    user.name = makeName();
+    user.email = makeEmail(user.name, username).toLowerCase();
+    user.password = 'password';
+    user.ownerOf = [];
+    user.adminOf = [];
+    user.memberOf = [];
+    user.creatorOf = [];
+    user.profile = {
+        displayName: username, 
+        userLocation: seed.locations[randomInt(0, seed.locations.length)],
+        userCompany: seed.companies[randomInt(0, seed.companies.length)],
+        userAvatar: seed.avatarUrls[randomInt(0, seed.avatarUrls.length)]
+    };
+    return user;
+};
+
+/**
+ * Generate {num} profiles that may be unique and may have their passwords
+ * salted and hashed.
+ * @param {integer} num
+ * @param {boolean} unique
+ * @param {boolean} saltAndHash 
+ * @returns {Promise}
+ */
+let makeProfiles = function(num, unique, saltAndHash) {
     let profiles = [];
     while(profiles.length < num) {
-        let user = {};
-        let username = seed.usernames[randomInt(0, seed.usernames.length)];
-        user.name = makeName();
-        user.email = makeEmail(user.name, username).toLowerCase();
-        //user.password = saltPassword('password');
-        user.password = 'password';//saltPassword('password');
-        user.profile = {
-            displayName: username, 
-            userLocation: seed.locations[randomInt(0, seed.locations.length)],
-            userCompany: seed.companies[randomInt(0, seed.companies.length)],
-            userAvatar: seed.avatarUrls[randomInt(0, seed.avatarUrls.length)]
-        };
-
+        let user = makeProfile();
         if(unique) {
             if(profiles.findIndex((element) => {
                     return element.email === user.email; 
@@ -83,7 +143,23 @@ let makeProfiles = function(num, unique) {
             profiles.push(user);
         }
     }
-    return profiles;
+
+    return new Promise((resolve) => {
+        if(saltAndHash) {
+            //TODO: rework this, it doesn't seem quite right
+            Promise.all(profiles.map(profile => {
+                return saltPassword(profile.password);
+            })).then(saltyHashes => {
+                saltyHashes.forEach((saltyHash, idx) => {
+                    profiles[idx].password = saltyHash;
+                }); 
+                resolve(profiles);
+            });
+        } else {
+            resolve(profiles);
+        }
+    });
+
 };
 
 module.exports = makeProfiles;

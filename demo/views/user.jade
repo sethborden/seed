@@ -1,0 +1,40 @@
+extends ./layout.jade
+
+block content
+    div.col-md-2.col-sm-12
+        img.img-thumbnail(src=profile.userAvatar)
+    div.col-md-10.col-sm-12
+        h1= profile.displayName
+        p
+            strong Name: 
+            span= name
+        p
+            strong Email: 
+            span= email
+        p
+            strong Location: 
+            span= profile.userLocation
+        p
+            strong Company: 
+            span= profile.userCompany
+        hr
+        if creatorOf.length > 0
+            p: strong Creator Of
+            each created in creatorOf
+                p: a(href="/groups/" + created.index): span= created.name
+        if ownerOf.length > 0
+            p: strong Owner Of
+            each owned in ownerOf
+                p: a(href="/groups/" + owned.index): span= owned.name
+        if adminOf.length > 0
+            p: strong Administrator Of
+            each admin in adminOf
+                p: a(href="/groups/" + admin.index): span= admin.name 
+        if memberOf.length > 0
+            p: strong Member Of
+            each member in memberOf
+                p: a(href="/groups/" + member.index): span= member.name 
+        
+
+
+

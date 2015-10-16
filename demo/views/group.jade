@@ -1,0 +1,19 @@
+extends layout
+
+block content
+    div.container
+        h1= name
+        p= description
+        p: strong Owner
+        p: a(href="/users/" + owner.index): span= owner.email 
+        p: strong Administrators
+        each admin in admins
+            p: a(href="/users/" + admin.index): span= admin.email 
+        p: strong Members
+        each member in members
+            p: a(href="/users/" + member.index): span= member.email 
+        if authorizationSettings.canRequestInvite === true
+            button.btn.btn-primary 
+                a(href='#') Request an invitation to this group
+        else
+            p: You cannot request an invitation to this group

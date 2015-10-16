@@ -1,0 +1,18 @@
+extends layout
+
+block content
+    div.jumbotron.container
+        h1 Seedjs
+        h2 Quickly generate users and groups for testing
+        h2 &nbsp;
+        div.col-md-3.col-md-offset-3
+            div.thumbnail
+                div.caption
+                    h2(style="text-align:center") 
+                        a(href="/users") #{users.length} Users
+        div.col-md-3
+            div.thumbnail
+                div.caption
+                    h2(style="text-align:center") 
+                        a(href="/groups") #{groups.length} Groups
+        
