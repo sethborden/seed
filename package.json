@@ -5,12 +5,13 @@
   "main": "seed.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "demo": "node demo/app.js" 
+    "demo": "node demo/app.js"
   },
   "author": "Seth Borden",
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^0.8.5",
+    "express": "^4.13.3",
     "lodash": "^3.10.1"
   }
 }
