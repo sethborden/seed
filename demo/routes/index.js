@@ -3,6 +3,7 @@
 
 exports.index = function(req, res){
     req.app.get('userdata').then(data => {
+        console.log(data.groups[0]);
         res.render('index', data);
     });
 };

@@ -1,4 +1,5 @@
 *.swp
 *.tmp
+*.swo
 node_modules
-/demo/bower_components
+bower_components
